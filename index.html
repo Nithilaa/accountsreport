@@ -447,7 +447,7 @@ function render(){
   h+=`<div class="card"><h2>Old balance & payments</h2>${inp('old',S.old,{label:'Old balance (₹)',mode:'decimal'})}<div style="height:12px"></div>`;
   S.pay.forEach((p,pi)=>{
     h+=`<div class="item"><div class="row">${inp(`pay.${pi}.d`,p.d,{label:'Payment date',type:'date',cls:'r2'})}${S.pay.length>1?`<button class="x" data-a="delP" data-i="${pi}" style="align-self:flex-end">×</button>`:''}</div>
-    <div class="row">${inp(`pay.${pi}.m`,p.m,{label:'Mode',ph:'RTGS / NEFT / Cash'})}${inp(`pay.${pi}.a`,p.a,{label:'Amount (₹)',mode:'decimal'})}</div></div>`;
+    <div class="row">${inp(`pay.${pi}.m`,p.m,{label:'Mode',ph:'RTGS / NEFT / CASH',caps:1})}${inp(`pay.${pi}.a`,p.a,{label:'Amount (₹)',mode:'decimal'})}</div></div>`;
   });
   h+=`<button class="add" data-a="addP">+ Add another payment</button></div>
   <div class="card sum" id="sum"></div>`;
@@ -475,7 +475,7 @@ function totals(){
 const $app=document.getElementById('app');
 const setp=(p,val)=>{const k=p.split('.');let o=S;for(let i=0;i<k.length-1;i++)o=o[k[i]];o[k[k.length-1]]=val};
 $app.addEventListener('input',e=>{const p=e.target.dataset.p;if(!p)return;
-  if(/\.no$/.test(p)){const t=e.target,a=t.selectionStart,u=t.value.toUpperCase();if(u!==t.value){t.value=u;try{t.setSelectionRange(a,a)}catch(x){}}}
+  if(/\.(no|m)$/.test(p)){const t=e.target,a=t.selectionStart,u=t.value.toUpperCase();if(u!==t.value){t.value=u;try{t.setSelectionRange(a,a)}catch(x){}}}
   setp(p,e.target.value);save();totals()});
 $app.addEventListener('focusout',e=>{const p=e.target.dataset.p;if(p&&/\.rep\.\d+\.w$/.test(p)){const v=kg(e.target.value);e.target.value=v;setp(p,v);save()}});
 $app.addEventListener('click',e=>{
@@ -486,8 +486,8 @@ $app.addEventListener('click',e=>{
   save();render();
 });
 document.getElementById('bNew').onclick=()=>{
-  if(!confirm('Start a new bill? The current balance becomes the old balance.'))return;
-  const bal=calc().bal;S=fresh();S.old=bal?String(bal):'';save();render();scrollTo(0,0);
+  if(!confirm('Start a new bill? Everything will be cleared.'))return;
+  S=fresh();save();render();scrollTo(0,0);
 };
 function toast(t){const e=document.getElementById('toast');e.textContent=t;e.style.display='block';setTimeout(()=>e.style.display='none',2500)}
 function makePdf(){
