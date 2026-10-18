@@ -421,14 +421,14 @@ const num=x=>parseFloat(String(x).replace(/,/g,''))||0;
 const inr=x=>x.toLocaleString('en-US',{maximumFractionDigits:2});
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
 const dmy=d=>d?d.split('-').reverse().join('/'):'';
-const kg=s=>{const t=String(s).trim();return /^[\d,]*\.?\d+$/.test(t)?inr(num(t))+' kg':t};
+const kg=s=>{const t=String(s).trim();return /^[\d,]*\.?\d+$/.test(t)?inr(num(t))+' KG':t.toUpperCase()};
 function calc(){
   const v0=S.v[0],goods=v0.items.reduce((a,i)=>a+num(i.w)*num(i.r),0),gst=num(v0.gst);
   const total=goods+gst+num(S.old),paid=S.pay.reduce((a,p)=>a+num(p.a),0);
   return{goods,gst,total,paid,bal:total-paid};
 }
 function inp(p,val,{label,ph='',mode='',type='text',cls='',caps=0}={}){
-  return `<div class="${cls}">${label?`<label>${label}</label>`:''}<input data-p="${p}" type="${type}" value="${esc(val)}" placeholder="${ph}" ${mode?`inputmode="${mode}"`:''} ${caps?'autocapitalize="characters" autocorrect="off" spellcheck="false" style="text-transform:uppercase"':''} autocomplete="off"></div>`;
+  return `<div class="${cls}">${label?`<label>${label}</label>`:''}<input data-p="${p}" type="${type}" value="${esc(val)}" placeholder="${ph}" ${mode?`inputmode="${mode}"`:''} ${type==='text'?'autocapitalize="characters" autocorrect="off" spellcheck="false" style="text-transform:uppercase"':''} autocomplete="off"></div>`;
 }
 function render(){
   const c=calc();
@@ -475,7 +475,7 @@ function totals(){
 const $app=document.getElementById('app');
 const setp=(p,val)=>{const k=p.split('.');let o=S;for(let i=0;i<k.length-1;i++)o=o[k[i]];o[k[k.length-1]]=val};
 $app.addEventListener('input',e=>{const p=e.target.dataset.p;if(!p)return;
-  if(/\.(no|m)$/.test(p)){const t=e.target,a=t.selectionStart,u=t.value.toUpperCase();if(u!==t.value){t.value=u;try{t.setSelectionRange(a,a)}catch(x){}}}
+  if(e.target.type==='text'){const t=e.target,a=t.selectionStart,u=t.value.toUpperCase();if(u!==t.value){t.value=u;try{t.setSelectionRange(a,a)}catch(x){}}}
   setp(p,e.target.value);save();totals()});
 $app.addEventListener('focusout',e=>{const p=e.target.dataset.p;if(p&&/\.rep\.\d+\.w$/.test(p)){const v=kg(e.target.value);e.target.value=v;setp(p,v);save()}});
 $app.addEventListener('click',e=>{
@@ -495,7 +495,7 @@ function makePdf(){
   const L=18,R=192,INK=[30,36,34],MUT=[122,130,126],HAIR=[226,226,218],PEACH=[252,239,226],GRN=[222,238,228],GTX=[20,89,79],BLU=[220,230,248],BTX=[40,70,130];
   const HS=12,BS=10;let y=0;const rs=n=>'Rs. '+inr(n);
   const col=a=>doc.setTextColor(...a);
-  const txt=(s,x,o={})=>doc.text(String(s),x,y,o);
+  const txt=(s,x,o={})=>doc.text(String(s).toUpperCase(),x,y,o);
   const font=(sz,b,c0)=>{doc.setFont('helvetica',b?'bold':'normal');doc.setFontSize(sz);col(c0||INK)};
   const line=(yy,c0,w)=>{doc.setDrawColor(...(c0||HAIR));doc.setLineWidth(w||0.2);doc.line(L,yy,R,yy)};
   const ensure=h=>{if(y+h>282){doc.addPage();y=22}};
@@ -529,7 +529,7 @@ function makePdf(){
     y+=8;ensure(24);doc.setFillColor(...BLU);doc.roundedRect(L,y-6,28,9,4.5,4.5,'F');font(HS,1,BTX);txt('Report',L+14,{align:'center'});y+=10;
     reps.forEach(r=>{
       if(r.pass){ensure(12);font(BS,1,GTX);txt('All materials passed',L+4);y+=3.5;line(y);y+=6.5;return}
-      const ls=[];r.l.filter(x=>x.trim()).forEach(l=>doc.splitTextToSize(l,R-110).forEach(p=>ls.push(p)));
+      const ls=[];r.l.filter(x=>x.trim()).forEach(l=>doc.splitTextToSize(l.toUpperCase(),R-110).forEach(p=>ls.push(p)));
       const n=Math.max(ls.length,1);ensure(n*6+6);
       font(BS,1);txt(r.n,L+4);font(BS,0,MUT);txt(r.w,76);font(BS,0);
       ls.forEach((l,k)=>{txt(l,110);if(k<ls.length-1)y+=6});
