@@ -402,8 +402,11 @@ button.x{flex:0 0 44px;min-height:48px;padding:0;color:var(--bad);font-size:22px
 .bar{position:sticky;bottom:0;display:flex;gap:10px;padding:10px 0 4px;background:linear-gradient(transparent,var(--bg) 30%)}
 .bar button{flex:1}
 .vh{display:flex;justify-content:space-between;align-items:center}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:14px}
+.top button{min-height:40px;font-size:15px;padding:0 14px;color:var(--acc)}
 #toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:20px;font-size:15px;display:none}
 </style></head><body><main>
+<div class="top"><span class="mut">Version 18 Oct 2026</span><button id="bRef">↻ Refresh</button></div>
 <div id="app"></div>
 <div class="bar"><button id="bShare">Share PDF</button><button class="p" id="bPdf">Download PDF</button></div>
 <button id="bNew" style="width:100%;margin-top:6px" class="mut">Start new bill</button>
@@ -485,6 +488,11 @@ $app.addEventListener('click',e=>{
    addP:()=>S.pay.push({d:today(),m:'',a:''}),delP:()=>S.pay.splice(i,1)})[d.a]?.();
   save();render();
 });
+document.getElementById('bRef').onclick=async()=>{
+  toast('Checking for update…');
+  try{const u=location.origin+location.pathname,q='?c='+Date.now();const r=await fetch(u+q,{cache:'reload'});if(!r.ok)throw 0;location.replace(u+q)}
+  catch(e){toast('No internet – could not refresh')}
+};
 document.getElementById('bNew').onclick=()=>{
   if(!confirm('Start a new bill? Everything will be cleared.'))return;
   S=fresh();save();render();scrollTo(0,0);
